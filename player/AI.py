@@ -251,7 +251,11 @@ class AI:
 
 
     def calculateb(self,gametiles):
-        value=0
+        value = 0
+        total_pieces = 0
+        
+        #print("hi")
+        center_squares = [(3, 3), (3, 4), (4, 3), (4, 4)]
         for x in range(8):
             for y in range(8):
                     if gametiles[y][x].pieceonTile.tostring()=='P':
@@ -270,7 +274,13 @@ class AI:
                         value=value-1000
 
                     if gametiles[y][x].pieceonTile.tostring()=='K':
-                        value=value-10000
+                        exposed = 0
+                        for dx in [-1, 0, 1]:
+                            for dy in [-1, 0, 1]:
+                                if 0 <= x + dx < 8 and 0 <= y + dy < 8:
+                                        if gametiles[y + dy][x + dx].pieceonTile.alliance == 'Black':
+                                            exposed += 10
+                        value=value-10000-exposed
 
                     if gametiles[y][x].pieceonTile.tostring()=='p':
                         value=value+100
@@ -289,10 +299,29 @@ class AI:
 
                     if gametiles[y][x].pieceonTile.tostring()=='k':
                         value=value+10000
+                    if not gametiles[y][x].pieceonTile.tostring():
+                        mobility = len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)) if gametiles[y][x].pieceonTile.alliance == 'Black' else len(gametiles[y][x].pieceonTile.legalmoveb(gametiles))
+                        value += mobility
 
+                    
+                    if (x, y) in center_squares:
+                        value += 10
         return value
 
+    def open_areas(self, gametiles, row):
+        open_area = 0
+        for y in range(8):
+            op = True
+            for row in gametiles:
+                if row[y].pieceonTile.is_empty():
+                    op=False
+                    break
+            if op:
+                open_area+=1
+        return open_area
 
+
+        pass
     def move(self,gametiles,y,x,n,m):
         promotion=False
         if gametiles[y][x].pieceonTile.tostring()=='K' or gametiles[y][x].pieceonTile.tostring()=='R':
