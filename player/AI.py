@@ -259,7 +259,10 @@ class AI:
         for x in range(8):
             for y in range(8):
                     if gametiles[y][x].pieceonTile.tostring()=='P':
-                        value=value-100
+                        structure = 0
+                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='P') and (col == 7 or gametiles[y+1][x].pieceonTile.tostring()!='P'):
+                            structure+=10
+                        value=value-100-structure 
 
                     if gametiles[y][x].pieceonTile.tostring()=='N':
                         value=value-350
@@ -283,7 +286,10 @@ class AI:
                         value=value-10000-exposed
 
                     if gametiles[y][x].pieceonTile.tostring()=='p':
-                        value=value+100
+                        structure = 0
+                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='p') and (col == 7 or gametiles[y+1][x].pieceonTile.tostring()!='p'):
+                            structure+=10
+                        value=value-100-structure
 
                     if gametiles[y][x].pieceonTile.tostring()=='n':
                         value=value+350
