@@ -260,9 +260,9 @@ class AI:
             for y in range(8):
                     if gametiles[y][x].pieceonTile.tostring()=='P':
                         structure = 0
-                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='P') and (col == 7 or gametiles[y+1][x].pieceonTile.tostring()!='P'):
+                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='P') and (y == 7 or gametiles[y+1][x].pieceonTile.tostring()!='P'):
                             structure+=10
-                        value=value-100-structure 
+                        value=value-100+structure 
 
                     if gametiles[y][x].pieceonTile.tostring()=='N':
                         value=value-350
@@ -271,9 +271,20 @@ class AI:
                         value=value-350
 
                     if gametiles[y][x].pieceonTile.tostring()=='R':
-                        value=value-525
+                        open_diag = 0 
+                        for dx in [-1,1]:
+                            dy=1
+                            while 0<=x+dx<8 and 0<=y+dy<8:
+                                if gametiles[y + dy][x + dx].pieceonTile.alliance == 'Black':
+                                    break  # Blocked by own piece
+                                elif gametiles[y + dy][x + dx].pieceonTile.alliance == 'White':
+                                    open_diag += 10  # Opponent's piece on the diagonal
+                                    break
+                                dy += 1 
+                        value=value-525+open_diag
 
                     if gametiles[y][x].pieceonTile.tostring()=='Q':
+
                         value=value-1000
 
                     if gametiles[y][x].pieceonTile.tostring()=='K':
@@ -281,15 +292,15 @@ class AI:
                         for dx in [-1, 0, 1]:
                             for dy in [-1, 0, 1]:
                                 if 0 <= x + dx < 8 and 0 <= y + dy < 8:
-                                        if gametiles[y + dy][x + dx].pieceonTile.alliance == 'Black':
+                                        if gametiles[y + dy][x + dx].pieceonTile.alliance != 'Black':
                                             exposed += 10
-                        value=value-10000-exposed
+                        value=value-10000+exposed
 
                     if gametiles[y][x].pieceonTile.tostring()=='p':
                         structure = 0
-                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='p') and (col == 7 or gametiles[y+1][x].pieceonTile.tostring()!='p'):
+                        if (y==0 or gametiles[y-1][x].pieceonTile.tostring()!='p') and (y == 7 or gametiles[y+1][x].pieceonTile.tostring()!='p'):
                             structure+=10
-                        value=value-100-structure
+                        value=value+100-structure
 
                     if gametiles[y][x].pieceonTile.tostring()=='n':
                         value=value+350
@@ -298,20 +309,43 @@ class AI:
                         value=value+350
 
                     if gametiles[y][x].pieceonTile.tostring()=='r':
-                        value=value+525
+                        open_diag = 0
+                        for dx in [-1, 1]:
+                            dy = 1
+                            while 0 <= x + dx < 8 and 0 <= y + dy < 8:
+                                if gametiles[y + dy][x + dx].pieceonTile.alliance == 'White':
+                                    break  # Blocked by own piece
+                                elif gametiles[y + dy][x + dx].pieceonTile.alliance == 'Black':
+                                    open_diag += 10  # Opponent's piece on the diagonal
+                                    break
+                                dy += 1
+                        value=value+525+10
 
                     if gametiles[y][x].pieceonTile.tostring()=='q':
                         value=value+1000
 
                     if gametiles[y][x].pieceonTile.tostring()=='k':
-                        value=value+10000
+                        exposed = 0
+                        for dx in [-1, 0, 1]:
+                            for dy in [-1, 0, 1]:
+                                if 0 <= x + dx < 8 and 0 <= y + dy < 8:
+                                        if gametiles[y + dy][x + dx].pieceonTile.alliance != 'Black':
+                                            exposed += 10
+                        value=value+10000-exposed
+
                     if not gametiles[y][x].pieceonTile.tostring():
                         mobility = len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)) if gametiles[y][x].pieceonTile.alliance == 'Black' else len(gametiles[y][x].pieceonTile.legalmoveb(gametiles))
-                        value += mobility
+                        if gametiles[y][x].pieceonTile.alliance == 'Black':
+                            value += mobility
+                        else:
+                            value-=mobility
 
                     
                     if (x, y) in center_squares:
-                        value += 10
+                        if gametiles[y][x].pieceonTile.alliance == 'Black':
+                            value += 10
+                        else:
+                            value-=10
         return value
 
     def open_areas(self, gametiles, row):
