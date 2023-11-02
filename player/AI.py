@@ -268,9 +268,6 @@ class AI:
                         value=value-350
 
                     if gametiles[y][x].pieceonTile.tostring()=='B':
-                        value=value-350
-
-                    if gametiles[y][x].pieceonTile.tostring()=='R':
                         open_diag = 0 
                         for dx in [-1,1]:
                             dy=1
@@ -281,7 +278,10 @@ class AI:
                                     open_diag += 10  # Opponent's piece on the diagonal
                                     break
                                 dy += 1 
-                        value=value-525+open_diag
+                        value=value-350+open_diag
+
+                    if gametiles[y][x].pieceonTile.tostring()=='R':
+                        value=value-525
 
                     if gametiles[y][x].pieceonTile.tostring()=='Q':
 
@@ -306,9 +306,6 @@ class AI:
                         value=value+350
 
                     if gametiles[y][x].pieceonTile.tostring()=='b':
-                        value=value+350
-
-                    if gametiles[y][x].pieceonTile.tostring()=='r':
                         open_diag = 0
                         for dx in [-1, 1]:
                             dy = 1
@@ -319,7 +316,11 @@ class AI:
                                     open_diag += 10  # Opponent's piece on the diagonal
                                     break
                                 dy += 1
-                        value=value+525+10
+                        value=value+350+open_diag
+
+                    if gametiles[y][x].pieceonTile.tostring()=='r':
+                        
+                        value=value+525
 
                     if gametiles[y][x].pieceonTile.tostring()=='q':
                         value=value+1000
@@ -334,7 +335,7 @@ class AI:
                         value=value+10000-exposed
 
                     if not gametiles[y][x].pieceonTile.tostring():
-                        mobility = len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)) if gametiles[y][x].pieceonTile.alliance == 'Black' else len(gametiles[y][x].pieceonTile.legalmoveb(gametiles))
+                        mobility = len(gametiles[y][x].pieceonTile.legalmoveb(gametiles))
                         if gametiles[y][x].pieceonTile.alliance == 'Black':
                             value += mobility
                         else:
@@ -346,7 +347,24 @@ class AI:
                             value += 10
                         else:
                             value-=10
+                    if self.protection(gametiles,x,y):
+                        if gametiles[y][x].pieceonTile.alliance == 'Black':
+                            value += 50
+                        else:
+                            value-=50
+                    #print(gametiles[y][x].pieceonTile.legalmoveb(gametiles))
         return value
+
+    def protection(self,gametiles,x,y):
+        for dx in [-1,0,1]:
+            for dy in [-1,0,1]:
+                if 0<=x+dx<8 and 0<=y+dy<8:
+                    if gametiles[y + dy][x + dx].pieceonTile and gametiles[y + dy][x + dx].pieceonTile.alliance=="Black":
+                        if gametiles[y + dy][x + dx].pieceonTile.legalmoveb(gametiles):
+                            for move in gametiles[y + dy][x + dx].pieceonTile.legalmoveb(gametiles):
+                                if move[0]==x and move[1]==y:
+                                    return True
+
 
     def open_areas(self, gametiles, row):
         open_area = 0
